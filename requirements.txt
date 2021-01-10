@@ -5,3 +5,4 @@ opencv_python==4.4.0.46
 email_validator==1.1.2
 streamlit==0.73.1
 Pillow==8.1.0
+idna==2.5.0
