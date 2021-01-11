@@ -15,11 +15,7 @@ def connect():
     """ Connect to MySQL database """
     conn = None
     try:
-        conn = mysql.connector.connect(host='awsfromto.cdvzay4qi0q6.sa-east-1.rds.amazonaws.com',
-                                       database='FromTo',
-                                       user='admin',
-                                       password='daviSO2309')
-        if conn.is_connected():
+        conn = mysql.connector.connect(host='
             print('Connected to MySQL database')
 
     except Error as e:
