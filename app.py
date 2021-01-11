@@ -146,9 +146,31 @@ if __name__ == '__main__':
         if expander2:
             expander2.markdown("**Para receber o arquivo, pressione o botão 'Salvar' ao fim da página**")
             if compararbuton is True and (imagem_referencia is not None) and (imagem_modficada is not None):
-                imagemfinal, score, cnts = main(imageRef, imageMod, imageModRGB)
+                (score, diff) = ssim(imagem_referencia, imagem_modficada, full=True)
+                diff = (diff * 255).astype("uint8")
+                # st.sidebar.text("SSIM: {}".format(score))
+                thresh = cv2.threshold(diff, 0, 255,
+                                       cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+                cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
+                                        cv2.CHAIN_APPROX_SIMPLE)
+                cnts = imutils.grab_contours(cnts)
+                contador = 0
+                for c in cnts:
+                    (x, y, w, h) = cv2.boundingRect(c)
+                    cv2.rectangle(imageModRGB, (x, y), (x + w, y + h), (0, 0, 255), 3)
+                    contador = contador + 1
+                contador = contador / 4
+                imagefinal = imageModRGB
+                # imagefinal = cv2.resize(imageB,(1920*2, 1080*2), interpolation=cv2.INTER_LINEAR)
+                if score < 1:
+                    st.sidebar.title("Status")
+                    st.sidebar.markdown("**Resultado:**" + " Diferença computada")
+                    st.sidebar.markdown("**Número de divergências:** {} divergências".format(contador))
+                else:
+                    st.sidebar.markdown("**Resultado:**" + " Arquivos iguais")
+
                 expander2.success('Operação realizada com sucesso.')
-                expander2.image(imagemfinal, use_column_width=True)
+                expander2.image(imagefinal, use_column_width=True)
 
 
     link = '[Criado por: Davi Soares](https://www.linkedin.com/in/davi-soares-batista-2a14692b/)'
