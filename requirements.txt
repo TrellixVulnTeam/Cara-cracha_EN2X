@@ -1,7 +1,7 @@
 imutils==0.5.3
 scikit_image==0.17.2
 numpy==1.19.3
-opencv_python==4.4.0.46
+opencv-python-headless==4.5.1.48
 email_validator==1.1.2
 streamlit==0.73.1
 Pillow==8.1.0
