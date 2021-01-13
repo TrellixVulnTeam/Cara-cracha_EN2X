@@ -41,24 +41,9 @@ Image.MAX_IMAGE_PIXELS = 10000000000000
 
 
 def main(dtimgref, dtimgmod, imgResultRGB):
-    """
-    main script
-    Args:
-        streamlit files, uploaded by the user(arg1, arg2)
-    Returns:
-        type: true or false (equal)
-    Raises:
-        Exception: description
-    """
-
-<<<<<<< HEAD
-    grayA = dtimgref
-    grayB = dtimgmod
-=======
-    grayA = cv2.cvtColor(dtimgref, cv2.COLOR_RGB2GRAY)
-    grayB = cv2.cvtColor(dtimgmod, cv2.COLOR_RGB2GRAY)
->>>>>>> a7c69bec10d39b78ee2258615a4ebbf92107e299
-    (score, diff) = ssim(grayA, grayB, full=True)
+    print(dtimgref.type)
+    print(dtimgref)
+    (score, diff) = ssim(dtimgref, dtimgmod, full=True)
     diff = (diff * 255).astype("uint8")
     # st.sidebar.text("SSIM: {}".format(score))
     thresh = cv2.threshold(diff, 0, 255,
