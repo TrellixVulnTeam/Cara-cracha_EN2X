@@ -6,3 +6,4 @@ email_validator==1.1.2
 streamlit==0.73.1
 Pillow==8.1.0
 idna==2.5.0
+mysql-connector-python==8.0.22
