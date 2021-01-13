@@ -156,7 +156,7 @@ if __name__ == '__main__':
         if expander2:
             imagefinal, score, contador = main(imageRef, imageMod, imageModRGB)
             scoredb = "{:.2f}".format(score)
-            connect(username, email, opcao, scoredb, contador)
+            #connect(username, email, opcao, scoredb, contador)
 
             # imagefinal = cv2.resize(imageB,(1920*2, 1080*2), interpolation=cv2.INTER_LINEAR)
             if score < 1:
