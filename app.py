@@ -15,29 +15,29 @@ from PIL import Image
 from skimage.metrics import structural_similarity as ssim
 import imutils
 from email_validator import validate_email, EmailNotValidError
-import mysql.connector
-from mysql.connector import Error
+# import mysql.connector
+# from mysql.connector import Error
 
 Image.MAX_IMAGE_PIXELS = 10000000000000
 
 
-def connect(username, email, tipo, score, contador):
-    """ Connect to MySQL database """
-    conn = None
-    try:
-        conn = mysql.connector.connect(host='deparadb.mysql.uhserver.com',
-                                       database='deparadb',
-                                       user='daviso',
-                                       password='daviSO2309@')
-        if conn.is_connected():
-            print('Connected to MySQL database')
-            mycursor = conn.cursor()
-            sqlstring = "INSERT INTO transacoes(nome, email, tipo, SSIM, cnts) VALUES(%s, %s, %s, %s, %s)"
-            mycursor.execute(sqlstring, (username, email, tipo, score, contador))
-            conn.commit()
-            conn.close()
-    except Error as e:
-        print(e)
+# def connect(username, email, tipo, score, contador):
+#     """ Connect to MySQL database """
+#     conn = None
+#     try:
+#         conn = mysql.connector.connect(host='deparadb.mysql.uhserver.com',
+#                                        database='deparadb',
+#                                        user='daviso',
+#                                        password='daviSO2309@')
+#         if conn.is_connected():
+#             print('Connected to MySQL database')
+#             mycursor = conn.cursor()
+#             sqlstring = "INSERT INTO transacoes(nome, email, tipo, SSIM, cnts) VALUES(%s, %s, %s, %s, %s)"
+#             mycursor.execute(sqlstring, (username, email, tipo, score, contador))
+#             conn.commit()
+#             conn.close()
+#     except Error as e:
+#         print(e)
 
 
 def main(dtimgref, dtimgmod, imgResultRGB):
