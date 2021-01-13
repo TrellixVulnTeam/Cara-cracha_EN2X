@@ -15,27 +15,45 @@ from PIL import Image
 from skimage.metrics import structural_similarity as ssim
 import imutils
 from email_validator import validate_email, EmailNotValidError
+# import mysql.connector
+# from mysql.connector import Error
 
-Image.MAX_IMAGE_PIXELS = 100000000000000
+Image.MAX_IMAGE_PIXELS = 10000000000000
+
+
+# def connect(username, email, tipo, score, contador):
+#     """ Connect to MySQL database """
+#     conn = None
+#     try:
+#         conn = mysql.connector.connect(host='deparadb.mysql.uhserver.com',
+#                                        database='deparadb',
+#                                        user='daviso',
+#                                        password='daviSO2309@')
+#         if conn.is_connected():
+#             print('Connected to MySQL database')
+#             mycursor = conn.cursor()
+#             sqlstring = "INSERT INTO transacoes(nome, email, tipo, SSIM, cnts) VALUES(%s, %s, %s, %s, %s)"
+#             mycursor.execute(sqlstring, (username, email, tipo, score, contador))
+#             conn.commit()
+#             conn.close()
+#     except Error as e:
+#         print(e)
 
 
 def main(dtimgref, dtimgmod, imgResultRGB):
     """
     main script
-
-
     Args:
         streamlit files, uploaded by the user(arg1, arg2)
-
     Returns:
         type: true or false (equal)
-
     Raises:
         Exception: description
-
     """
 
-    (score, diff) = ssim(dtimgref, dtimgmod, full=True)
+    grayA = cv2.cvtColor(dtimgref, cv2.COLOR_RGB2GRAY)
+    grayB = cv2.cvtColor(dtimgmod, cv2.COLOR_RGB2GRAY)
+    (score, diff) = ssim(grayA, grayB, full=True)
     diff = (diff * 255).astype("uint8")
     # st.sidebar.text("SSIM: {}".format(score))
     thresh = cv2.threshold(diff, 0, 255,
@@ -48,16 +66,10 @@ def main(dtimgref, dtimgmod, imgResultRGB):
         (x, y, w, h) = cv2.boundingRect(c)
         cv2.rectangle(imgResultRGB, (x, y), (x + w, y + h), (0, 0, 255), 3)
         contador = contador + 1
-    contador = contador / 4
+    contador = contador
     imagefinal = imgResultRGB
     # imagefinal = cv2.resize(imageB,(1920*2, 1080*2), interpolation=cv2.INTER_LINEAR)
-    if score < 1:
-        st.sidebar.title("Status")
-        st.sidebar.markdown("**Resultado:**" + " Diferença computada")
-        st.sidebar.markdown("**Número de divergências:** {} divergências".format(contador))
-    else:
-        st.sidebar.markdown("**Resultado:**" + " Arquivos iguais")
-    return imagefinal, score, contador
+    return imagefinal, score, int(contador)
 
 
 if __name__ == '__main__':
@@ -74,11 +86,7 @@ if __name__ == '__main__':
     st.text("Ferramenta online e completamente gratuita para comparar fotos, desenhos e textos")
     st.markdown('-' * 17)
 
-    st.sidebar.title('Configurações')
-
-    st.sidebar.title("Verificar", )
-    st.sidebar.checkbox("Contorno", key="chkContorno")
-    st.sidebar.checkbox("Texto", key="chkTexto")
+    st.sidebar.title('Resultados')
 
     expanderinicial = st.beta_expander("Dados para envio do arquivo", expanded=True)
     if expanderinicial:
@@ -105,7 +113,7 @@ if __name__ == '__main__':
         col1, col2 = expander.beta_columns(2)
         col1.markdown("**Carregue o desenho referência**")
         imagem_referencia = col1.file_uploader("", type=['jpg', 'jpeg', 'png'])
-        if imagem_referencia:
+        if imagem_referencia is not None:
             imagemexibicao = col1.empty()
             dtimgref = Image.open(imagem_referencia)
             col1.header(opcao + " original", )
@@ -116,10 +124,9 @@ if __name__ == '__main__':
             dimensoes = col1.text(f"Dimensões: {w} x {h}")
         else:
             col1.image("placeholder.png", width=300)
-
         col2.markdown("**Carregue o desenho a ser comparado**")
         imagem_modficada = col2.file_uploader("", type=['jpg', 'jpeg', 'png'], key="ImagemModif")
-        if imagem_modficada:
+        if imagem_modficada is not None:
             dtimgmod = Image.open(imagem_modficada)
             col2.header(opcao + " para estudo")
             col2.image(dtimgmod, use_column_width=True)
@@ -130,7 +137,6 @@ if __name__ == '__main__':
             col2.text(f"Dimensões: {w} x {h}")
         else:
             col2.image("placeholder.png", )
-
         if imagem_referencia is not None and imagem_modficada is not None:
             if (imageRef.shape != imageMod.shape):
                 h, w = imageMod.shape
@@ -141,37 +147,25 @@ if __name__ == '__main__':
                 dimensoes = dimensoes.text(f"Dimensões: {w} x {h}")
 
         compararbuton = expander.button("Comparar")
+
     if compararbuton:
         expander2 = st.beta_expander("Resultados", expanded=True)
         if expander2:
-            expander2.markdown("**Para receber o arquivo, pressione o botão 'Salvar' ao fim da página**")
-            if compararbuton is True and (imagem_referencia is not None) and (imagem_modficada is not None):
-                (score, diff) = ssim(imagem_referencia, imagem_modficada, full=True)
-                diff = (diff * 255).astype("uint8")
-                # st.sidebar.text("SSIM: {}".format(score))
-                thresh = cv2.threshold(diff, 0, 255,
-                                       cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
-                cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
-                                        cv2.CHAIN_APPROX_SIMPLE)
-                cnts = imutils.grab_contours(cnts)
-                contador = 0
-                for c in cnts:
-                    (x, y, w, h) = cv2.boundingRect(c)
-                    cv2.rectangle(imageModRGB, (x, y), (x + w, y + h), (0, 0, 255), 3)
-                    contador = contador + 1
-                contador = contador / 4
-                imagefinal = imageModRGB
-                # imagefinal = cv2.resize(imageB,(1920*2, 1080*2), interpolation=cv2.INTER_LINEAR)
-                if score < 1:
-                    st.sidebar.title("Status")
-                    st.sidebar.markdown("**Resultado:**" + " Diferença computada")
-                    st.sidebar.markdown("**Número de divergências:** {} divergências".format(contador))
-                else:
-                    st.sidebar.markdown("**Resultado:**" + " Arquivos iguais")
+            imagefinal, score, contador = main(imageRef, imageMod, imageModRGB)
+            scoredb = "{:.2f}".format(score)
+            #connect(username, email, opcao, scoredb, contador)
 
-                expander2.success('Operação realizada com sucesso.')
-                expander2.image(imagefinal, use_column_width=True)
+            # imagefinal = cv2.resize(imageB,(1920*2, 1080*2), interpolation=cv2.INTER_LINEAR)
+            if score < 1:
+                st.sidebar.title("Status")
+                st.sidebar.markdown("**Resultado:**" + " Diferença computada")
+                st.sidebar.markdown(f"**SSIM: ** {score}")
+                st.sidebar.markdown("**Número de divergências:** {} divergências".format(contador))
+            else:
+                st.sidebar.markdown("**Resultado:**" + " Arquivos iguais")
 
+            expander2.success('Operação realizada com sucesso.')
+            expander2.image(imagefinal, use_column_width=True)
 
     link = '[Criado por: Davi Soares](https://www.linkedin.com/in/davi-soares-batista-2a14692b/)'
     st.markdown(link, unsafe_allow_html=True)
