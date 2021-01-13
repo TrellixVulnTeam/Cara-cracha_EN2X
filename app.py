@@ -50,12 +50,12 @@ def main(dtimgref, dtimgmod, imgResultRGB):
     Raises:
         Exception: description
     """
-    imageA = np.array(dtimgref.convert('RGB'))
-    grayA = cv2.cvtColor(imageA, cv2.COLOR_RGB2GRAY)
 
-    imageB = np.array(dtimgmod.convert('RGB'))
+    grayA = cv2.cvtColor(dtimgref, cv2.COLOR_RGB2GRAY)
 
-    grayB = cv2.cvtColor(imageB, cv2.COLOR_RGB2GRAY)
+
+
+    grayB = cv2.cvtColor(dtimgmod, cv2.COLOR_RGB2GRAY)
     (score, diff) = ssim(grayA, grayB, full=True)
     diff = (diff * 255).astype("uint8")
     # st.sidebar.text("SSIM: {}".format(score))
