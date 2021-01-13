@@ -41,8 +41,7 @@ Image.MAX_IMAGE_PIXELS = 10000000000000
 
 
 def main(dtimgref, dtimgmod, imgResultRGB):
-    print(dtimgref.type)
-    print(dtimgref)
+
     (score, diff) = ssim(dtimgref, dtimgmod, full=True)
     diff = (diff * 255).astype("uint8")
     # st.sidebar.text("SSIM: {}".format(score))
@@ -51,6 +50,7 @@ def main(dtimgref, dtimgmod, imgResultRGB):
     cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
                             cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
+
     contador = 0
     for c in cnts:
         (x, y, w, h) = cv2.boundingRect(c)
