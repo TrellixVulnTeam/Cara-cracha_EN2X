@@ -113,6 +113,7 @@ if __name__ == '__main__':
             imagemexibicao = col1.image(dtimgref, use_column_width=True)
             imageRefRGB = np.array(dtimgref.convert('RGB'))
             imageRef = cv2.cvtColor(imageRefRGB, cv2.COLOR_RGB2GRAY)
+            origreduzida = cv2.resize(imageRef, 0.5, cv2.IMREAD_UNCHANGED)
             w, h = imageRef.shape
             dimensoes = col1.text(f"Dimensões: {w} x {h}")
         else:
@@ -128,6 +129,7 @@ if __name__ == '__main__':
             imageMod = cv2.cvtColor(imageMod, cv2.COLOR_RGB2GRAY)
             w, h = imageMod.shape
             col2.text(f"Dimensões: {w} x {h}")
+            modifreduzida = cv2.resize(imageMod,0.5, cv2.IMREAD_UNCHANGED)
         else:
             col2.image("placeholder.png", )
         if imagem_referencia is not None and imagem_modficada is not None:
@@ -138,13 +140,13 @@ if __name__ == '__main__':
                 imagemexibicao = imagemexibicao.image(imageRef, use_column_width=True)
                 w, h = imageRef.shape
                 dimensoes = dimensoes.text(f"Dimensões: {w} x {h}")
-
+                origreduzida = cv2.resize(imageMod, 0.5, cv2.IMREAD_UNCHANGED)
         compararbuton = expander.button("Comparar")
 
     if compararbuton:
         expander2 = st.beta_expander("Resultados", expanded=True)
         if expander2:
-            imagefinal, score, contador = main(dtimgref,dtimgmod, imageRef, imageMod, imageModRGB)
+            imagefinal, score, contador = main(origreduzida,modifreduzida, imageRef, imageMod, imageModRGB)
             scoredb = "{:.2f}".format(score)
             #connect(username, email, opcao, scoredb, contador)
 
