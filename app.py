@@ -40,19 +40,12 @@ Image.MAX_IMAGE_PIXELS = 10000000000000
 #         print(e)
 
 
-def main(dtimgref, dtimgmod, imgResultRGB):
-    """
-    main script
-    Args:
-        streamlit files, uploaded by the user(arg1, arg2)
-    Returns:
-        type: true or false (equal)
-    Raises:
-        Exception: description
-    """
-
-
-    (score, diff) = ssim(dtimgref, dtimgmod, full=True)
+def main(imgorignumpy, imgmodnumpy, dtimgref, dtimgmod, imgResultRGB):
+    imgOrigConvRGB = np.array(imgorignumpy.convert('RGB'))
+    imgOrigRGBtoGray = cv2.cvtColor(imgOrigConvRGB, cv2.COLOR_RGB2GRAY)
+    imgModConvRGB = np.array(imgmodnumpy.convert('RGB'))
+    imgModRGBtoGray = cv2.cvtColor(imgModConvRGB, cv2.COLOR_RGB2GRAY)
+    (score, diff) = ssim(imgOrigRGBtoGray, imgModRGBtoGray, full=True)
     diff = (diff * 255).astype("uint8")
     # st.sidebar.text("SSIM: {}".format(score))
     thresh = cv2.threshold(diff, 0, 255,
@@ -60,6 +53,7 @@ def main(dtimgref, dtimgmod, imgResultRGB):
     cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
                             cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
+
     contador = 0
     for c in cnts:
         (x, y, w, h) = cv2.boundingRect(c)
@@ -150,7 +144,7 @@ if __name__ == '__main__':
     if compararbuton:
         expander2 = st.beta_expander("Resultados", expanded=True)
         if expander2:
-            imagefinal, score, contador = main(imageRef, imageMod, imageModRGB)
+            imagefinal, score, contador = main(dtimgref,dtimgmod, imageRef, imageMod, imageModRGB)
             scoredb = "{:.2f}".format(score)
             #connect(username, email, opcao, scoredb, contador)
 
