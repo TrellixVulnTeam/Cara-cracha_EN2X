@@ -17,48 +17,7 @@ import imutils
 from email_validator import validate_email, EmailNotValidError
 
 Image.MAX_IMAGE_PIXELS = 100000000000000
-
-
-def main(dtimgref, dtimgmod, imgResultRGB):
-    """
-    main script
-
-
-    Args:
-        streamlit files, uploaded by the user(arg1, arg2)
-
-    Returns:
-        type: true or false (equal)
-
-    Raises:
-        Exception: description
-
-    """
-
-    (score, diff) = ssim(dtimgref, dtimgmod, full=True)
-    diff = (diff * 255).astype("uint8")
-    # st.sidebar.text("SSIM: {}".format(score))
-    thresh = cv2.threshold(diff, 0, 255,
-                           cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
-    cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
-                            cv2.CHAIN_APPROX_SIMPLE)
-    cnts = imutils.grab_contours(cnts)
-    contador = 0
-    for c in cnts:
-        (x, y, w, h) = cv2.boundingRect(c)
-        cv2.rectangle(imgResultRGB, (x, y), (x + w, y + h), (0, 0, 255), 3)
-        contador = contador + 1
-    contador = contador / 4
-    imagefinal = imgResultRGB
     # imagefinal = cv2.resize(imageB,(1920*2, 1080*2), interpolation=cv2.INTER_LINEAR)
-    if score < 1:
-        st.sidebar.title("Status")
-        st.sidebar.markdown("**Resultado:**" + " Diferença computada")
-        st.sidebar.markdown("**Número de divergências:** {} divergências".format(contador))
-    else:
-        st.sidebar.markdown("**Resultado:**" + " Arquivos iguais")
-    return imagefinal, score, contador
-
 
 if __name__ == '__main__':
     st.set_page_config(
