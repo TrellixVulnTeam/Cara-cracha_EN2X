@@ -29,8 +29,25 @@ if __name__ == '__main__':
 
         initial_sidebar_state="collapsed")
 
-    st.title('Cara-Crachá')
-    st.text("Ferramenta online e completamente gratuita para comparar fotos, desenhos e textos")
+    st.markdown("""
+    <style>
+    .big-title {
+    	font-family: Courier;
+    	color: red;
+    	font-size:80px !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    st.markdown('<p class="big-title">Kra-Crachá!</p>', unsafe_allow_html=True)
+    st.markdown("""
+    <style>
+    .big-font {
+        font-size:30px !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    st.markdown('<p class="big-font">Ferramenta online e completamente gratuita para comparar fotos, desenhos e textos!</p>', unsafe_allow_html=True)
+    #st.text("Ferramenta online e completamente gratuita para comparar fotos, desenhos e textos")
     st.markdown('-' * 17)
 
     st.sidebar.title('Configurações')
@@ -38,27 +55,9 @@ if __name__ == '__main__':
     st.sidebar.title("Verificar", )
     st.sidebar.checkbox("Contorno", key="chkContorno")
     st.sidebar.checkbox("Texto", key="chkTexto")
-
-    expanderinicial = st.beta_expander("Dados para envio do arquivo", expanded=True)
-    if expanderinicial:
-        username = expanderinicial.text_input("Digite o seu nome.")
-        email = expanderinicial.text_input("Digite o seu email")
-        if email != "":
-            try:
-                # Validate.
-                valid = validate_email(email)
-
-                # Update with the normalized form.
-                email = valid.email
-                expanderinicial.info("Email confirmado")
-
-            except EmailNotValidError as e:
-                # email is not valid, exception message is human-readable
-                expanderinicial.warning('Email inválido')
-                pass
     expander = st.beta_expander("Seleção de arquivos", expanded=True)
     if expander:
-        expander.text("Procure inserir desenho na mesma dimensão e qualidade. ")
+        expander.markdown("***Procure inserir documentos com comprimento máximo de 2500 pixels.***")
         opcoes_menu = ['Desenho', 'Foto', 'Texto']
         opcao = expander.selectbox("Escolha um tipo de análise:", opcoes_menu, index=0, )
         col1, col2 = expander.beta_columns(2)
@@ -92,6 +91,26 @@ if __name__ == '__main__':
             col2.text(f"Dimensões: {w} x {h}")
         else:
             col2.image("placeholder.png", )
+
+    expanderinicial = st.beta_expander("Dados para envio do arquivo", expanded=True)
+    if expanderinicial:
+        username = expanderinicial.text_input("Digite o seu nome.")
+        email = expanderinicial.text_input("Digite o seu email")
+        if email != "":
+            try:
+                # Validate.
+                valid = validate_email(email)
+
+                # Update with the normalized form.
+                email = valid.email
+                expanderinicial.info("Email confirmado")
+
+            except EmailNotValidError as e:
+                # email is not valid, exception message is human-readable
+                expanderinicial.warning('Email inválido')
+                pass
+
+        btncomparar = st.button("Comparar")
     if imagem_modficada is not None and imagem_referencia is not None:
 
         (score, diff) = ssim(imageRef, imageMod, full=True)
@@ -114,13 +133,12 @@ if __name__ == '__main__':
             st.sidebar.title("Status")
             st.sidebar.markdown("**Resultado:**" + " Diferença computada")
             st.sidebar.markdown("**Número de divergências:** {} divergências".format(contador))
-            expander2 = st.beta_expander("Resultados", expanded=False)
+            expander2 = st.beta_expander("Resultados", expanded=True)
             if expander2:
                 expander2.markdown("**Para receber o arquivo, pressione o botão 'Salvar' ao fim da página**")
                 expander2.image(imageModRGB, use_column_width=True)
         else:
             st.sidebar.markdown("**Resultado:**" + " Arquivos iguais")
-
 
 
     link = '[Criado por: Davi Soares](https://www.linkedin.com/in/davi-soares-batista-2a14692b/)'
