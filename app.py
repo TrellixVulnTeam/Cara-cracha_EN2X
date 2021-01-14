@@ -27,7 +27,7 @@ if __name__ == '__main__':
 
         layout="wide",
 
-        initial_sidebar_state="expanded")
+        initial_sidebar_state="collapsed")
 
     st.title('Cara-Crachá')
     st.text("Ferramenta online e completamente gratuita para comparar fotos, desenhos e textos")
@@ -71,6 +71,7 @@ if __name__ == '__main__':
             imagemexibicao = col1.image(dtimgref, use_column_width=True)
             imageRefRGB = np.array(dtimgref.convert('RGB'))
             imageRef = cv2.cvtColor(imageRefRGB, cv2.COLOR_RGB2GRAY)
+            imageRef = cv2.resize(imageRef, None, fx=0.6, fy=0.6, interpolation=cv2.INTER_LINEAR)
             w, h = imageRef.shape
             dimensoes = col1.text(f"Dimensões: {w} x {h}")
         else:
@@ -85,11 +86,13 @@ if __name__ == '__main__':
             imageModRGB = np.array(dtimgmod.convert('RGB'))
             imageMod = np.array(dtimgmod.convert('RGB'))
             imageMod = cv2.cvtColor(imageMod, cv2.COLOR_RGB2GRAY)
+            imageRef = cv2.resize(imageRef, None, fx=0.6, fy=0.6, interpolation=cv2.INTER_LINEAR)
             w, h = imageMod.shape
             col2.text(f"Dimensões: {w} x {h}")
         else:
             col2.image("placeholder.png", )
     if imagem_modficada is not None and imagem_referencia is not None:
+
         (score, diff) = ssim(imageRef, imageMod, full=True)
         diff = (diff * 255).astype("uint8")
         # st.sidebar.text("SSIM: {}".format(score))
