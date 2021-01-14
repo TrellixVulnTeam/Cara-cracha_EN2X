@@ -83,10 +83,11 @@ if __name__ == '__main__':
             dtimgmod = Image.open(imagem_modficada)
             col2.header(opcao + " para estudo")
             col2.image(dtimgmod, use_column_width=True)
-            imageModRGB = np.array(dtimgmod.convert('RGB'))
             imageMod = np.array(dtimgmod.convert('RGB'))
+            imageMod = cv2.resize(imageMod, None, fx=0.6, fy=0.6, interpolation=cv2.INTER_LINEAR)
+            imageModRGB = imageMod
             imageMod = cv2.cvtColor(imageMod, cv2.COLOR_RGB2GRAY)
-            imageRef = cv2.resize(imageRef, None, fx=0.6, fy=0.6, interpolation=cv2.INTER_LINEAR)
+
             w, h = imageMod.shape
             col2.text(f"Dimensões: {w} x {h}")
         else:
