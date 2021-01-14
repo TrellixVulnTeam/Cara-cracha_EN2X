@@ -51,12 +51,8 @@ def main(dtimgref, dtimgmod, imgResultRGB):
         Exception: description
     """
 
-    grayA = cv2.cvtColor(dtimgref, cv2.COLOR_RGB2GRAY)
 
-
-
-    grayB = cv2.cvtColor(dtimgmod, cv2.COLOR_RGB2GRAY)
-    (score, diff) = ssim(grayA, grayB, full=True)
+    (score, diff) = ssim(dtimgref, dtimgmod, full=True)
     diff = (diff * 255).astype("uint8")
     # st.sidebar.text("SSIM: {}".format(score))
     thresh = cv2.threshold(diff, 0, 255,
