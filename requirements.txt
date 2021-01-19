@@ -50,7 +50,7 @@ traitlets==4.3.3
 blinker==1.4
 certifi==2020.12.5
 chardet==4.0.0
-tifffile==2020.12.8
+tifffile==2020.9.3
 Pygments==2.7.3
 testpath==0.4.4
 decorator==4.4.2
