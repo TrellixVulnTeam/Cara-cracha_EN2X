@@ -28,7 +28,7 @@ Wand==0.6.5
 astor==0.8.1
 smmap==3.0.4
 setuptools==51.1.2
-ipython==7.19.0
+ipython==7.16.1
 pydeck==0.5.0
 pandas==1.2.0
 ipykernel==5.4.2
