@@ -9,13 +9,13 @@
 # email: davi_soares@hotmail.com
 
 
-import pdf2image
-import streamlit as st
-import numpy as np
-import cv2
-from PIL import Image
-from skimage.metrics import structural_similarity as ssim
-import imutils
+import pdf2image #
+import streamlit as st #
+import numpy as np #
+import cv2 #
+from PIL import Image #
+from skimage.metrics import structural_similarity as ssim #
+import imutils #
 from email_validator import validate_email, EmailNotValidError
 import mysql.connector
 from mysql.connector import Error
