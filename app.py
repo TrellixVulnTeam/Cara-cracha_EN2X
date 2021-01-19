@@ -17,11 +17,29 @@ from PIL import Image
 from skimage.metrics import structural_similarity as ssim
 import imutils
 from email_validator import validate_email, EmailNotValidError
+import mysql.connector
+from mysql.connector import Error
 
 Image.MAX_IMAGE_PIXELS = 100000000000000
     # imagefinal = cv2.resize(imageB,(1920*2, 1080*2), interpolation=cv2.INTER_LINEAR)
 
-
+def connect(username, email, tipo, score, contador):
+ """ Connect to MySQL database """
+ conn = None
+ try:
+     conn = mysql.connector.connect(host='deparadb.mysql.uhserver.com',
+                                    database='deparadb',
+                                    user='daviso',
+                                    password='daviSO2309@')
+     if conn.is_connected():
+         print('Connected to MySQL database')
+         mycursor = conn.cursor()
+         sqlstring = "INSERT INTO transacoes(nome, email, tipo, SSIM, cnts) VALUES(%s, %s, %s, %s, %s)"
+         mycursor.execute(sqlstring, (username, email, tipo, score, contador))
+         conn.commit()
+         conn.close()
+ except Error as e:
+     print(e)
 if __name__ == '__main__':
     st.set_page_config(
         page_title="Cara-Crachá",
@@ -78,6 +96,7 @@ if __name__ == '__main__':
                     imageRef = cv2.resize(imageRef, None, fx=0.6, fy=0.6, interpolation=cv2.INTER_LINEAR)
                     w, h = imageRef.shape
                     dimensoes = col1.text(f"Dimensões: {w} x {h}")
+                    boolimgref = True
             else:
                 imagemexibicao = col1.empty()
                 dtimgref = Image.open(imagem_referencia)
@@ -88,29 +107,41 @@ if __name__ == '__main__':
                 imageRef = cv2.resize(imageRef, None, fx=0.6, fy=0.6, interpolation=cv2.INTER_LINEAR)
                 w, h = imageRef.shape
                 dimensoes = col1.text(f"Dimensões: {w} x {h}")
+                boolimgref = True
         else:
             col1.image("placeholder.png", width=300)
-
+            boolimgref = False
         col2.markdown("**Carregue o desenho a ser comparado**")
         imagem_modficada = col2.file_uploader("", type=['jpg', 'jpeg', 'png','pdf','tiff'], key="ImagemModif")
         if imagem_modficada is not None:
             if imagem_modficada.type == 'application/pdf':
                 imagesmod = pdf2image.convert_from_bytes(imagem_modficada.read())
                 for pagemod in imagesmod:
-                    imagemexibicao = col1.empty()
-
-            dtimgmod = Image.open(imagem_modficada)
-            col2.header(opcao + " para estudo")
-            col2.image(dtimgmod, use_column_width=True)
-            imageMod = np.array(dtimgmod.convert('RGB'))
-            imageMod = cv2.resize(imageMod, None, fx=0.6, fy=0.6, interpolation=cv2.INTER_LINEAR)
-            imageModRGB = imageMod
-            imageMod = cv2.cvtColor(imageMod, cv2.COLOR_RGB2GRAY)
-
-            w, h = imageMod.shape
-            col2.text(f"Dimensões: {w} x {h}")
+                    imagemmodexi = col2.empty()
+                    imageMod = pagemod
+                    col2.header(opcao + " para estudo")
+                    imagemmodexi = col2.image(imageMod, use_column_width=True)
+                    imageModRGB = np.array(imageMod.convert('RGB'))
+                    imageMod = cv2.resize(imageModRGB, None, fx=0.6, fy=0.6, interpolation=cv2.INTER_LINEAR)
+                    imageModRGB = imageMod
+                    imageMod = cv2.cvtColor(imageMod, cv2.COLOR_RGB2GRAY)
+                    w, h = imageMod.shape
+                    dimensoes = col2.text(f"Dimensões: {w} x {h}")
+                    boolimgmod = True
+            else:
+                dtimgmod = Image.open(imagem_modficada)
+                col2.header(opcao + " para estudo")
+                col2.image(dtimgmod, use_column_width=True)
+                imageMod = np.array(dtimgmod.convert('RGB'))
+                imageMod = cv2.resize(imageMod, None, fx=0.6, fy=0.6, interpolation=cv2.INTER_LINEAR)
+                imageModRGB = imageMod
+                imageMod = cv2.cvtColor(imageMod, cv2.COLOR_RGB2GRAY)
+                w, h = imageMod.shape
+                col2.text(f"Dimensões: {w} x {h}")
+                boolimgmod = True
         else:
             col2.image("placeholder.png", )
+            boolimgmod = False
 
     expanderinicial = st.beta_expander("Dados para envio do arquivo", expanded=True)
     if expanderinicial:
@@ -131,35 +162,42 @@ if __name__ == '__main__':
                 pass
 
         btncomparar = st.button("Comparar")
-    if imagem_modficada is not None and imagem_referencia is not None:
-
-        (score, diff) = ssim(imageRef, imageMod, full=True)
-        diff = (diff * 255).astype("uint8")
-        # st.sidebar.text("SSIM: {}".format(score))
-        thresh = cv2.threshold(diff, 0, 255,
-                               cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
-        cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
-                                cv2.CHAIN_APPROX_SIMPLE)
-        cnts = imutils.grab_contours(cnts)
-        contador = 0
-        for c in cnts:
-            (x, y, w, h) = cv2.boundingRect(c)
-            cv2.rectangle(imageModRGB, (x, y), (x + w, y + h), (0, 0, 255), 3)
-            contador = contador + 1
-        contador = contador / 4
-        expander.success('Operação realizada com sucesso.')
-        # imagefinal = cv2.resize(imageB,(1920*2, 1080*2), interpolation=cv2.INTER_LINEAR)
-        if score < 1:
-            st.sidebar.title("Status")
-            st.sidebar.markdown("**Resultado:**" + " Diferença computada")
-            st.sidebar.markdown("**Número de divergências:** {} divergências".format(contador))
-            expander2 = st.beta_expander("Resultados", expanded=True)
-            if expander2:
-                expander2.markdown("**Para receber o arquivo, pressione o botão 'Salvar' ao fim da página**")
-                expander2.image(imageModRGB, use_column_width=True)
+    if btncomparar:
+        if username != ""  and email.text is not None:
+            if imagem_modficada is not None and imagem_referencia is not None:
+                (score, diff) = ssim(imageRef, imageMod, full=True)
+                diff = (diff * 255).astype("uint8")
+                # st.sidebar.text("SSIM: {}".format(score))
+                thresh = cv2.threshold(diff, 0, 255,
+                                       cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+                cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
+                                        cv2.CHAIN_APPROX_SIMPLE)
+                cnts = imutils.grab_contours(cnts)
+                contador = 0
+                for c in cnts:
+                    (x, y, w, h) = cv2.boundingRect(c)
+                    cv2.rectangle(imageModRGB, (x, y), (x + w, y + h), (0, 0, 255), 3)
+                    print(cv2.boundingRect(c))
+                    contador = contador + 1
+                contador = contador / 4
+                expander.success('Operação realizada com sucesso.')
+                # imagefinal = cv2.resize(imageB,(1920*2, 1080*2), interpolation=cv2.INTER_LINEAR)
+                if score < 1:
+                    st.sidebar.title("Status")
+                    st.sidebar.markdown("**Resultado:**" + " Diferença computada")
+                    st.sidebar.markdown("**Número de divergências:** {} divergências".format(contador))
+                    expander2 = st.beta_expander("Resultados", expanded=True)
+                    if expander2:
+                        expander2.markdown("**Para receber o arquivo, pressione o botão 'Salvar' ao fim da página**")
+                        scoredb = "{:.2f}".format(score)
+                        connect(username, email, opcao, scoredb, contador)
+                        expander2.image(imageModRGB, use_column_width=True )
+                else:
+                    st.sidebar.markdown("**Resultado:**" + " Arquivos iguais")
         else:
-            st.sidebar.markdown("**Resultado:**" + " Arquivos iguais")
-
+            expander.alert("Insira o nome e email válido")
 
     link = '[Criado por: Davi Soares](https://www.linkedin.com/in/davi-soares-batista-2a14692b/)'
     st.markdown(link, unsafe_allow_html=True)
+    propaganda = """<script data-ad-client="ca-pub-3099082167197982" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>"""
+    st.markdown(propaganda, unsafe_allow_html=True)
