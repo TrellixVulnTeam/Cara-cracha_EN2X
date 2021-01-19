@@ -27,7 +27,6 @@ toml==0.10.2
 Wand==0.6.5
 astor==0.8.1
 smmap==3.0.4
-pywin32==300
 setuptools==51.1.2
 ipython==7.19.0
 pydeck==0.5.0
