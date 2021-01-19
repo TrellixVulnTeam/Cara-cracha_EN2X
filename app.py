@@ -22,24 +22,27 @@ from mysql.connector import Error
 
 Image.MAX_IMAGE_PIXELS = 1000000000000
 
+
 def connect(username, email, tipo, score, contador):
- """ Connect to MySQL database """
- conn = None
- try:
-     conn = mysql.connector.connect(host='deparadb.mysql.uhserver.com',
-                                    database='deparadb',
-                                    user='daviso',
-                                    password='daviSO2309@')
-     if conn.is_connected():
-         print('Connected to MySQL database')
-         mycursor = conn.cursor()
-         sqlstring = "INSERT INTO transacoes(nome, email, tipo, SSIM, cnts) VALUES(%s, %s, %s, %s, %s)"
-         mycursor.execute(sqlstring, (username, email, tipo, score, contador))
-         conn.commit()
-         print("Deu certo")
-         conn.close()
- except Error as e:
-     print(e)
+    """ Connect to MySQL database """
+    conn = None
+    try:
+        conn = mysql.connector.connect(host='deparadb.mysql.uhserver.com',
+                                       database='deparadb',
+                                       user='daviso',
+                                       password='daviSO2309@')
+        if conn.is_connected():
+            print('Connected to MySQL database')
+            mycursor = conn.cursor()
+            sqlstring = "INSERT INTO transacoes(nome, email, tipo, SSIM, cnts) VALUES(%s, %s, %s, %s, %s)"
+            mycursor.execute(sqlstring, (username, email, tipo, score, contador))
+            conn.commit()
+            print("Deu certo")
+            conn.close()
+    except Error as e:
+        print(e)
+
+
 if __name__ == '__main__':
     st.set_page_config(
         page_title="Cara-Crachá",
@@ -82,7 +85,7 @@ if __name__ == '__main__':
         opcao = expander.selectbox("Escolha um tipo de análise:", opcoes_menu, index=0, )
         col1, col2 = expander.beta_columns(2)
         col1.markdown("**Carregue o desenho referência**")
-        imagem_referencia = col1.file_uploader("", type=['jpg', 'jpeg', 'png','pdf','tiff'])
+        imagem_referencia = col1.file_uploader("", type=['jpg', 'jpeg', 'png', 'pdf', 'tiff'])
         if imagem_referencia is not None:
             if imagem_referencia.type == 'application/pdf':
                 images = pdf2image.convert_from_bytes(imagem_referencia.read())
@@ -112,7 +115,7 @@ if __name__ == '__main__':
             col1.image("placeholder.png", width=300)
             boolimgref = False
         col2.markdown("**Carregue o desenho a ser comparado**")
-        imagem_modficada = col2.file_uploader("", type=['jpg', 'jpeg', 'png','pdf','tiff'], key="ImagemModif")
+        imagem_modficada = col2.file_uploader("", type=['jpg', 'jpeg', 'png', 'pdf', 'tiff'], key="ImagemModif")
         if imagem_modficada is not None:
             if imagem_modficada.type == 'application/pdf':
                 imagesmod = pdf2image.convert_from_bytes(imagem_modficada.read())
@@ -191,7 +194,7 @@ if __name__ == '__main__':
                         expander2.markdown("**Para receber o arquivo, pressione o botão 'Salvar' ao fim da página**")
                         scoredb = "{:.2f}".format(score)
                         connect(username, email, opcao, scoredb, contador)
-                        expander2.image(imageModRGB, use_column_width=True )
+                        expander2.image(imageModRGB, use_column_width=True)
                 else:
                     st.sidebar.markdown("**Resultado:**" + " Arquivos iguais")
         else:

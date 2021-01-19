@@ -21,7 +21,7 @@ attrs==20.3.0
 parso==0.8.1
 jedi==0.17.0
 pytz==2020.5
-scipy==1.6.0
+scipy==1.5.4
 matplotlib==3.3.3
 toml==0.10.2
 Wand==0.6.5
