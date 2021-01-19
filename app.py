@@ -8,6 +8,8 @@
 
 # email: davi_soares@hotmail.com
 
+
+import pdf2image
 import streamlit as st
 import numpy as np
 import cv2
@@ -18,6 +20,7 @@ from email_validator import validate_email, EmailNotValidError
 
 Image.MAX_IMAGE_PIXELS = 100000000000000
     # imagefinal = cv2.resize(imageB,(1920*2, 1080*2), interpolation=cv2.INTER_LINEAR)
+
 
 if __name__ == '__main__':
     st.set_page_config(
@@ -34,7 +37,7 @@ if __name__ == '__main__':
     .big-title {
     	font-family: Courier;
     	color: red;
-    	font-size:80px !important;
+    	font-size:90px !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -42,12 +45,11 @@ if __name__ == '__main__':
     st.markdown("""
     <style>
     .big-font {
-        font-size:30px !important;
+        font-size:35px !important;
     }
     </style>
     """, unsafe_allow_html=True)
-    st.markdown('<p class="big-font">Ferramenta online e completamente gratuita para comparar fotos, desenhos e textos!</p>', unsafe_allow_html=True)
-    #st.text("Ferramenta online e completamente gratuita para comparar fotos, desenhos e textos")
+    st.markdown('<p class="big-font">Não cometemos o erro de deixar passar um único erro.</p>', unsafe_allow_html=True)
     st.markdown('-' * 17)
 
     st.sidebar.title('Configurações')
@@ -62,23 +64,41 @@ if __name__ == '__main__':
         opcao = expander.selectbox("Escolha um tipo de análise:", opcoes_menu, index=0, )
         col1, col2 = expander.beta_columns(2)
         col1.markdown("**Carregue o desenho referência**")
-        imagem_referencia = col1.file_uploader("", type=['jpg', 'jpeg', 'png'])
+        imagem_referencia = col1.file_uploader("", type=['jpg', 'jpeg', 'png','pdf','tiff'])
         if imagem_referencia is not None:
-            imagemexibicao = col1.empty()
-            dtimgref = Image.open(imagem_referencia)
-            col1.header(opcao + " original", )
-            imagemexibicao = col1.image(dtimgref, use_column_width=True)
-            imageRefRGB = np.array(dtimgref.convert('RGB'))
-            imageRef = cv2.cvtColor(imageRefRGB, cv2.COLOR_RGB2GRAY)
-            imageRef = cv2.resize(imageRef, None, fx=0.6, fy=0.6, interpolation=cv2.INTER_LINEAR)
-            w, h = imageRef.shape
-            dimensoes = col1.text(f"Dimensões: {w} x {h}")
+            if imagem_referencia.type == 'application/pdf':
+                images = pdf2image.convert_from_bytes(imagem_referencia.read())
+                for page in images:
+                    imagemexibicao = col1.empty()
+                    dtimgref = page
+                    col1.header(opcao + " original")
+                    imagemexibicao = col1.image(dtimgref, use_column_width=True)
+                    imageRefRGB = np.array(dtimgref.convert('RGB'))
+                    imageRef = cv2.cvtColor(imageRefRGB, cv2.COLOR_RGB2GRAY)
+                    imageRef = cv2.resize(imageRef, None, fx=0.6, fy=0.6, interpolation=cv2.INTER_LINEAR)
+                    w, h = imageRef.shape
+                    dimensoes = col1.text(f"Dimensões: {w} x {h}")
+            else:
+                imagemexibicao = col1.empty()
+                dtimgref = Image.open(imagem_referencia)
+                col1.header(opcao + " original", )
+                imagemexibicao = col1.image(dtimgref, use_column_width=True)
+                imageRefRGB = np.array(dtimgref.convert('RGB'))
+                imageRef = cv2.cvtColor(imageRefRGB, cv2.COLOR_RGB2GRAY)
+                imageRef = cv2.resize(imageRef, None, fx=0.6, fy=0.6, interpolation=cv2.INTER_LINEAR)
+                w, h = imageRef.shape
+                dimensoes = col1.text(f"Dimensões: {w} x {h}")
         else:
             col1.image("placeholder.png", width=300)
 
         col2.markdown("**Carregue o desenho a ser comparado**")
-        imagem_modficada = col2.file_uploader("", type=['jpg', 'jpeg', 'png'], key="ImagemModif")
+        imagem_modficada = col2.file_uploader("", type=['jpg', 'jpeg', 'png','pdf','tiff'], key="ImagemModif")
         if imagem_modficada is not None:
+            if imagem_modficada.type == 'application/pdf':
+                imagesmod = pdf2image.convert_from_bytes(imagem_modficada.read())
+                for pagemod in imagesmod:
+                    imagemexibicao = col1.empty()
+
             dtimgmod = Image.open(imagem_modficada)
             col2.header(opcao + " para estudo")
             col2.image(dtimgmod, use_column_width=True)
