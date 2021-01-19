@@ -20,8 +20,7 @@ from email_validator import validate_email, EmailNotValidError
 import mysql.connector
 from mysql.connector import Error
 
-Image.MAX_IMAGE_PIXELS = 100000000000000
-    # imagefinal = cv2.resize(imageB,(1920*2, 1080*2), interpolation=cv2.INTER_LINEAR)
+Image.MAX_IMAGE_PIXELS = 1000000000000
 
 def connect(username, email, tipo, score, contador):
  """ Connect to MySQL database """
@@ -37,6 +36,7 @@ def connect(username, email, tipo, score, contador):
          sqlstring = "INSERT INTO transacoes(nome, email, tipo, SSIM, cnts) VALUES(%s, %s, %s, %s, %s)"
          mycursor.execute(sqlstring, (username, email, tipo, score, contador))
          conn.commit()
+         print("Deu certo")
          conn.close()
  except Error as e:
      print(e)
@@ -163,7 +163,7 @@ if __name__ == '__main__':
 
         btncomparar = st.button("Comparar")
     if btncomparar:
-        if username != ""  and email.text is not None:
+        if username is not None and email is not None:
             if imagem_modficada is not None and imagem_referencia is not None:
                 (score, diff) = ssim(imageRef, imageMod, full=True)
                 diff = (diff * 255).astype("uint8")
@@ -180,7 +180,7 @@ if __name__ == '__main__':
                     print(cv2.boundingRect(c))
                     contador = contador + 1
                 contador = contador / 4
-                expander.success('Operação realizada com sucesso.')
+                st.success('Operação realizada com sucesso.')
                 # imagefinal = cv2.resize(imageB,(1920*2, 1080*2), interpolation=cv2.INTER_LINEAR)
                 if score < 1:
                     st.sidebar.title("Status")
@@ -195,9 +195,6 @@ if __name__ == '__main__':
                 else:
                     st.sidebar.markdown("**Resultado:**" + " Arquivos iguais")
         else:
-            expander.alert("Insira o nome e email válido")
-
+            expander.warning("Insira um nome e email válido")
     link = '[Criado por: Davi Soares](https://www.linkedin.com/in/davi-soares-batista-2a14692b/)'
     st.markdown(link, unsafe_allow_html=True)
-    propaganda = """<script data-ad-client="ca-pub-3099082167197982" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>"""
-    st.markdown(propaganda, unsafe_allow_html=True)
